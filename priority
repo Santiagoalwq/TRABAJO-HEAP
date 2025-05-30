@@ -1,3 +1,5 @@
+// Santiago Bolaños, Jose Jaider Manrique
+
 class Task {
   constructor(name, priority) {
     this.name = name;
