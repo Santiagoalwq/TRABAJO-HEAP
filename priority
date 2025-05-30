@@ -1,0 +1,131 @@
+class Task {
+  constructor(name, priority) {
+    this.name = name;
+    this.priority = priority;
+  }
+
+  toString() {
+    return `${this.name} (prioridad: ${this.priority})`;
+  }
+}
+
+class PriorityQueue {
+  constructor(maxSize) {
+    this.heap = new Array(maxSize);
+    this.size = 0;
+    this.maxSize = maxSize;
+  }
+
+  parentIndex(i) {
+    return Math.floor((i - 1) / 2);
+  }
+
+  leftChildIndex(i) {
+    return 2 * i + 1;
+  }
+
+  rightChildIndex(i) {
+    return 2 * i + 2;
+  }
+
+  isLeaf(i) {
+    return (
+      this.leftChildIndex(i) >= this.size &&
+      this.rightChildIndex(i) >= this.size
+    );
+  }
+
+  swap(i, j) {
+    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+  }
+
+  insert(task) {
+    if (this.size >= this.maxSize) {
+      console.warn("La cola está llena");
+      return;
+    }
+
+    this.heap[this.size] = task;
+    let current = this.size;
+
+    while (
+      current > 0 &&
+      this.heap[current].priority < this.heap[this.parentIndex(current)].priority
+    ) {
+      this.swap(current, this.parentIndex(current));
+      current = this.parentIndex(current);
+    }
+
+    this.size++;
+  }
+
+  extractHighestPriority() {
+    if (this.size <= 0) return null;
+
+    const highestPriorityTask = this.heap[0];
+    this.heap[0] = this.heap[this.size - 1];
+    this.size--;
+    this.minHeapify(0);
+    return highestPriorityTask;
+  }
+
+  minHeapify(i) {
+    if (!this.isLeaf(i)) {
+      const left = this.leftChildIndex(i);
+      const right = this.rightChildIndex(i);
+
+      let smallest = i;
+
+      if (
+        left < this.size &&
+        this.heap[left].priority < this.heap[smallest].priority
+      ) {
+        smallest = left;
+      }
+
+      if (
+        right < this.size &&
+        this.heap[right].priority < this.heap[smallest].priority
+      ) {
+        smallest = right;
+      }
+
+      if (smallest !== i) {
+        this.swap(i, smallest);
+        this.minHeapify(smallest);
+      }
+    }
+  }
+
+  
+  printHeapStructure() {
+    console.log("\n----- Estructura del Heap -----");
+    for (let i = 0; i < Math.floor(this.size / 2); i++) {
+      const left = this.leftChildIndex(i);
+      const right = this.rightChildIndex(i);
+
+      let output = `Padre: ${this.heap[i]}`;
+      if (left < this.size) output += ` | Izquierda: ${this.heap[left]}`;
+      if (right < this.size) output += ` | Derecha: ${this.heap[right]}`;
+      console.log(output);
+    }
+  }
+
+  
+  printHeap() {
+    console.log("\n----- Estado Actual del Heap -----");
+    const tasks = this.heap.slice(0, this.size);
+    if (tasks.length === 0) {
+      console.log("El heap está vacío");
+      return;
+    }
+    
+    console.log("Índice | Nombre | Prioridad");
+    console.log("---------------------------");
+    tasks.forEach((task, index) => {
+      console.log(`${index} | ${task.name} | ${task.priority}`);
+    });
+  }
+}
+
+module.exports = { Task, PriorityQueue };
